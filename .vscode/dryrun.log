@@ -1,0 +1,6 @@
+make --dry-run --keep-going --print-directory
+make: Entering directory '/mnt/d/AAAData/Code/Lab/mit6.S081/xv6-labs-2021'
+ 
+make: 'kernel/kernel' is up to date.
+make: Leaving directory '/mnt/d/AAAData/Code/Lab/mit6.S081/xv6-labs-2021'
+ 

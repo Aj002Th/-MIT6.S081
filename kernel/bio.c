@@ -32,7 +32,12 @@ struct {
   // head.next is most recent, head.prev is least.
   struct buf head;
 } bcache;
-
+/*
+void bbbb(void) {
+  struct aaaa *b;
+  b->aaa=000;
+}
+*/
 void
 binit(void)
 {

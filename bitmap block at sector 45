@@ -1,0 +1,21 @@
+" ============================================================================
+" Netrw Directory Listing                                        (netrw v165)
+"   /home/wuyimin
+"   Sorted by size reversed
+"   Quick Help: <F1>:help  -:go up dir  D:delete  R:rename  s:sort-by  x:special
+" ==============================================================================
+.bashrc
+.viminfo
+.bash_history
+.profile
+.bash_logout
+.wget-hsts
+xv6-labs-2021/
+.vscode-server/
+.vim/
+.sudo_as_admin_successful
+.motd_shown
+.landscape/
+.cache/
+./
+../
