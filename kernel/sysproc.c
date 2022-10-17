@@ -81,6 +81,39 @@ int
 sys_pgaccess(void)
 {
   // lab pgtbl: your code here.
+  uint64 page_addr = 0;
+  int npage = 0;
+  uint64 user_buffer = 0;
+  uint64 bitmask = 0;
+
+  pte_t *pte = 0;
+
+  if(argaddr(0, &page_addr) < 0) return -1;
+  if(argint(1, &npage) < 0) return -1;
+  if(argaddr(2, &user_buffer) < 0) return -1;
+
+  // limit n
+  if(npage > 64) return -1;
+
+  // walk page and set bitmask
+  for(int i = 0; i < npage; i++) {
+    pte = walk(myproc()->pagetable, page_addr, 0);
+    if(pte == 0) return -1;
+
+    // count and clear PTE_A bit
+    if((*pte & PTE_V) && (*pte & PTE_A)) {
+      bitmask = bitmask | (1 << i);
+      (*pte) = (*pte) & (~PTE_A);
+    }
+
+    // add page_addr
+    page_addr += PGSIZE;
+  }
+
+  // copy bitmask to user buffer
+  if(copyout(myproc()->pagetable, user_buffer, (char*)&bitmask, sizeof(bitmask)) < 0)
+    return -1;
+
   return 0;
 }
 #endif

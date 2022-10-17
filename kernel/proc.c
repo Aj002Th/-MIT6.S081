@@ -127,6 +127,15 @@ found:
     return 0;
   }
 
+  // Allocate a usyscall page.
+  if((p->usyscall = (struct usyscall *)kalloc()) == 0){
+    freeproc(p);
+    release(&p->lock);
+    return 0;
+  }
+  // copy the pid
+  p->usyscall->pid = p->pid;
+
   // An empty user page table.
   p->pagetable = proc_pagetable(p);
   if(p->pagetable == 0){
@@ -153,9 +162,13 @@ freeproc(struct proc *p)
   if(p->trapframe)
     kfree((void*)p->trapframe);
   p->trapframe = 0;
+  if(p->usyscall)
+    kfree((void*)p->usyscall);
+  p->usyscall = 0;
   if(p->pagetable)
     proc_freepagetable(p->pagetable, p->sz);
   p->pagetable = 0;
+
   p->sz = 0;
   p->pid = 0;
   p->parent = 0;
@@ -196,6 +209,13 @@ proc_pagetable(struct proc *p)
     return 0;
   }
 
+  // map the usyscall struct to getpid()
+  if(mappages(pagetable, USYSCALL, PGSIZE,
+              (uint64)(p->usyscall), PTE_R | PTE_U) < 0){
+    uvmfree(pagetable, 0);
+    return 0;
+  }
+
   return pagetable;
 }
 
@@ -206,6 +226,7 @@ proc_freepagetable(pagetable_t pagetable, uint64 sz)
 {
   uvmunmap(pagetable, TRAMPOLINE, 1, 0);
   uvmunmap(pagetable, TRAPFRAME, 1, 0);
+  uvmunmap(pagetable, USYSCALL, 1, 0);
   uvmfree(pagetable, sz);
 }
 
