@@ -65,6 +65,12 @@ usertrap(void)
     intr_on();
 
     syscall();
+  } else if(r_scause() == 12 || r_scause() == 13 || r_scause() == 15){
+    // 由于 读、写、指令 引发的缺页中断
+    uint64 va = r_stval(); // 请求哪个虚拟页导致的中断
+    if(va > p->sz || isCOW(walk(p->pagetable, va, 0)) == 0 || cowKalloc(p->pagetable, va) == 0) {
+      p->killed = 1;
+    }
   } else if((which_dev = devintr()) != 0){
     // ok
   } else {
