@@ -1,0 +1,43 @@
+1. Which registers contain arguments to functions? For example, which register holds 13 in main's call to `printf`?
+
+    a0 到 a7 寄存器可以存八个参数，main 中的 13 是第三个参数存在 a2 中
+
+2. Where is the call to function `f` in the assembly code for main? Where is the call to `g`? (Hint: the compiler may inline functions.)
+
+    在 c 代码里，main 调用了 f ，然后 f 调用了 g 。但是实际在汇编代码中，汇编器进行了一个内联的优化，直接将 f(8)+1 的值提前算好了，main 中直接使用了结果 12。
+
+3. At what address is the function `printf` located?
+
+    ```assembly
+    30:	00000097          	auipc	ra,0x0
+    34:	600080e7          	jalr	1536(ra) # 630 <printf>
+    ```
+
+    auipc 的作用是将立即数的值左移 12 位后加 PC ，将结果存储在寄存器中，立即数为 0 时其实就相当于取 pc 的值
+
+    这里的 1536 是个 16进制数，其实是 0x600，加上 ra 中存储的 0x30，结果为 0x630
+
+4. What value is in the register `ra` just after the `jalr` to `printf` in `main`?
+
+    jalr 指令将返回后下一条需要执行的地址放入 ra，即 0x34 + 4 = 0x38
+
+5. Run the following code.
+    ```c
+        unsigned int i = 0x00646c72;
+        printf("H%x Wo%s", 57616, &i);
+    ```
+    What is the output? [Here's an ASCII table](http://web.cs.mun.ca/~michael/c/ascii-table.html) that maps bytes to characters.
+    The output depends on that fact that the RISC-V is little-endian. If the RISC-V were instead big-endian what would you set `i` to in order to yield the same output? Would you need to change `57616` to a different value?
+    [Here's a description of little- and big-endian](http://www.webopedia.com/TERM/b/big_endian.html) and [a more whimsical description](http://www.networksorcery.com/enp/ien/ien137.txt).
+
+    57616=0xE110，所以前半部分是 HE110 ；0x00646c72 小端序要反过来变成 72-6c-64-00，对应的 ASCII 码 72:r 6c:l 64:d 00:字符串结束符，所以后半部分为 World；输出为 HE110 World
+    
+    如果变成大端序，因为57616 是直接输入的数字所以不用变化，i 需要反过来，变成 0x726c6400
+    
+6. In the following code, what is going to be printed after `'y='`? (note: the answer is not a specific value.) Why does this happen?
+
+   ```
+        printf("x=%d y=%d", 3);
+    ```
+    
+    这里参数是从对应的寄存器中取的，如果代码能正常执行的话，y 的值就取决于原本 a2 中的内容
