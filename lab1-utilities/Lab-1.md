@@ -258,7 +258,7 @@ int main(int argc, char* argv[]) {
     memset(buf, 0, sizeof(buf));
     memset(xargv, 0, sizeof(xargv));
     for (int i = 1; i < argc; i++) {
-        xargv[i-1] = argv[i];
+        xargv[i-1] = argv[i]; // argv 第一个参数是程序名，忽略
     }
 
     while (n) {
@@ -270,7 +270,7 @@ int main(int argc, char* argv[]) {
         *p = '\0';
 
         if(p != buf) {
-            xargv[argc-1] = buf;
+            xargv[argc-1] = buf;  // 把标准输入的内容全塞到 xargv m
             if (fork() == 0) {
                 exec(argv[1], xargv);
                 exit(1);
